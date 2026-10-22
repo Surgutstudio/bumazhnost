@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Панель управления · Бумажность форсажность</title>
+<meta name="robots" content="noindex,nofollow">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:-apple-system,system-ui,'Segoe UI',sans-serif;
+    background:#141414;color:#e8e8e8;min-height:100vh;line-height:1.5;
+  }
+  a{color:#ffd166}
+
+  /* ===== HEADER TABS ===== */
+  .header{
+    background:#000;border-bottom:2px solid #333;
+    padding:12px 24px;display:flex;align-items:center;justify-content:space-between;
+    position:sticky;top:0;z-index:100;
+  }
+  .header h1{font-size:16px;font-weight:700;letter-spacing:.3px}
+  .header h1 span{color:#ffd166}
+  .tabs{display:flex;gap:10px;background:#1a1a1a;padding:4px;border-radius:8px;}
+  .tab-btn{
+    background:transparent;border:none;color:#888;padding:8px 16px;
+    border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;
+    font-family:inherit;transition:all .2s;
+  }
+  .tab-btn:hover{color:#ccc}
+  .tab-btn.active{background:#333;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+
+  .badge{
+    background:#ffd166;color:#000;padding:4px 10px;border-radius:6px;
+    font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;
+  }
+
+  /* ===== TAB CONTENT ===== */
+  .tab-content{display:none;}
+  .tab-content.active{display:block;}
+
+  /* ===== PRINT TAB ===== */
+  .layout{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 58px);}
+  .sidebar{background:#1a1a1a;border-right:1px solid #333;padding:20px;overflow-y:auto;max-height:calc(100vh - 58px);position:sticky;top:58px;}
+  .section{margin-bottom:24px}
+  .section h3{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:#888;margin-bottom:10px}
+  .designs{display:flex;flex-direction:column;gap:6px}
+  .design-row{display:grid;grid-template-columns:24px 32px 1fr 52px;align-items:center;gap:8px;background:#222;border:1px solid #333;border-radius:6px;padding:6px 10px;cursor:pointer;transition:background .15s}
+  .design-row:hover{background:#2a2a2a}
+  .design-row.active{border-color:#ffd166;background:#2a2418}
+  .design-row input[type="checkbox"]{accent-color:#ffd166;width:16px;height:16px;cursor:pointer}
+  .design-emoji{font-size:18px;text-align:center}
+  .design-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .design-qty{width:100%;background:#111;border:1px solid #444;color:#eee;padding:3px 6px;border-radius:4px;font-size:12px;text-align:center;font-family:inherit}
+  .design-qty:disabled{opacity:.3}
+  .size-list{display:flex;flex-direction:column;gap:6px}
+  .size-btn{background:#222;border:1px solid #333;color:#ddd;padding:10px 14px;border-radius:6px;cursor:pointer;text-align:left;font-family:inherit;font-size:13px;display:flex;justify-content:space-between;align-items:center;gap:10px;transition:all .15s}
+  .size-btn:hover{background:#2a2a2a}
+  .size-btn.active{border-color:#ffd166;background:#2a2418;color:#ffd166}
+  .size-btn small{opacity:.6;font-size:11px;white-space:nowrap}
+  .summary{background:#222;border:1px solid #333;border-radius:6px;padding:12px;font-size:12px;line-height:1.8}
+  .summary strong{color:#ffd166}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;font-family:inherit;border:none;transition:all .15s;width:100%}
+  .btn-primary{background:#ffd166;color:#000}
+  .btn-primary:hover{background:#ffc233}
+  .btn-primary:disabled{background:#444;color:#888;cursor:not-allowed}
+  .btn-ghost{background:#333;color:#eee}
+  .btn-ghost:hover{background:#444}
+  .main{background:#0d0d0d;padding:24px;overflow-y:auto;min-height:calc(100vh - 58px)}
+  .preview-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;font-size:13px;color:#888}
+  .preview-head strong{color:#ffd166}
+  .pages{display:flex;flex-direction:column;gap:24px;align-items:center}
+  .page{background:#fff;color:#000;width:210mm;height:297mm;padding:8mm;box-shadow:0 8px 32px rgba(0,0,0,.5);display:grid;gap:0;align-content:start;justify-content:center;position:relative;overflow:hidden}
+  .page::after{content:attr(data-page);position:absolute;bottom:2mm;right:4mm;font-size:9px;color:#ccc;font-family:monospace}
+  .sticker{width:var(--sz);height:var(--sz);display:grid;place-items:center;padding:1mm;page-break-inside:avoid}
+  .sticker-inner{width:100%;height:100%;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5mm;border:0.6mm dashed #999;background:var(--c);color:#fff;padding:1mm;box-shadow:inset 0 0 0 0.7mm var(--c)}
+  .sticker-inner.dark{color:#171717}
+  .sticker-emoji{font-size:calc(var(--sz) * .42);line-height:1}
+  .sticker-label{font-family:'Arial Black',sans-serif;font-weight:900;font-size:calc(var(--sz) * .1);letter-spacing:.5px;text-align:center;line-height:1;text-transform:uppercase}
+  .empty{text-align:center;padding:60px 20px;color:#666;font-size:14px}
+  
+  @media print{
+    @page{size:A4 portrait;margin:0}
+    html,body{background:#fff!important;color:#000!important;margin:0!important;padding:0!important}
+    .no-print{display:none!important}
+    .layout{display:block!important;min-height:auto!important}
+    .sidebar{display:none!important}
+    .main{padding:0!important;margin:0!important;background:#fff!important;min-height:auto!important;overflow:visible!important}
+    .pages{display:block!important;gap:0!important}
+    .page{width:210mm!important;height:297mm!important;padding:8mm!important;margin:0!important;box-shadow:none!important;page-break-after:always;break-after:page;page-break-inside:avoid;break-inside:avoid;overflow:hidden!important;display:grid!important;align-content:start!important;justify-content:center!important}
+    .page:last-child{page-break-after:auto;break-after:auto}
+    .page::after{display:none!important}
+    .sticker{page-break-inside:avoid;break-inside:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .sticker-inner{box-shadow:none!important}
+  }
+
+  /* ===== INVENTORY TAB ===== */
+  .inventory-container{padding:24px;max-width:1100px;margin:0 auto;}
+  .inv-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+  .inv-header h2{font-size:20px;color:#fff;}
+  
+  .card-inv{background:#1a1a1a;border:1px solid #333;border-radius:12px;padding:20px;margin-bottom:24px;}
+  .card-inv h3{margin-bottom:16px;font-size:16px;color:#ffd166;display:flex;align-items:center;gap:8px;}
+  
+  .form-row{display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;}
+  .form-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:140px;}
+  .form-group label{font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+  .form-group input, .form-group select, .form-group textarea{
+    background:#111;border:1px solid #444;color:#eee;padding:10px 14px;border-radius:8px;
+    font-family:inherit;font-size:14px;width:100%;transition:border-color .15s;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus{
+    outline:none;border-color:#ffd166;
+  }
+  .form-group textarea{resize:vertical;min-height:60px;}
+  
+  .product-item{background:#222;border:1px solid #333;border-radius:10px;padding:16px;margin-bottom:12px;position:relative;}
+  .product-item:hover{border-color:#555;}
+  .remove-btn{position:absolute;top:12px;right:12px;background:rgba(230,57,70,.15);color:#e63946;border:1px solid #e63946;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:bold;transition:all .15s;}
+  .remove-btn:hover{background:#e63946;color:#fff;}
+  
+  .btn-download{
+    background:#2a9d8f;color:#fff;font-size:16px;padding:16px;width:100%;border-radius:10px;
+    font-weight:bold;cursor:pointer;border:none;display:flex;justify-content:center;align-items:center;gap:10px;
+    transition:background .15s;
+  }
+  .btn-download:hover{background:#21867a;}
+  .download-hint{text-align:center;font-size:13px;color:#888;margin-top:12px;line-height:1.6;}
+  .add-btn-inv{background:#333;color:#fff;border:1px dashed #555;padding:12px;width:100%;border-radius:8px;font-weight:600;cursor:pointer;margin-bottom:20px;transition:all .15s;}
+  .add-btn-inv:hover{background:#444;border-color:#777;}
+
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr}
+    .sidebar{position:static;max-height:none;border-right:none;border-bottom:1px solid #333}
+    .main{padding:14px}
+    .page{width:100%;height:auto;aspect-ratio:210/297;padding:4mm}
+    .header{flex-direction:column;gap:12px;align-items:flex-start;}
+    .tabs{width:100%;overflow-x:auto;}
+    .tab-btn{flex:1;text-align:center;}
+  }
+</style>
+</head>
+<body>
+
+<header class="header no-print">
+  <div>
+    <h1>⚙️ Панель управления · <span>Бумажность</span></h1>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" data-target="tab-print">🖨️ Печать</button>
+    <button class="tab-btn" data-target="tab-inventory">📦 Товары и лимиты</button>
+  </div>
+  <span class="badge">Сотрудники</span>
+</header>
+
+<!-- ==================== ВКЛАДКА 1: ПЕЧАТЬ ==================== -->
+<div id="tab-print" class="tab-content active">
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="section">
+        <h3>1. Дизайны и количество</h3>
+        <div class="designs" id="designsList"></div>
+      </div>
+      <div class="section">
+        <h3>2. Размер наклеек</h3>
+        <div class="size-list" id="sizesList"></div>
+      </div>
+      <div class="section">
+        <h3>3. Итого</h3>
+        <div class="summary" id="summary"></div>
+      </div>
+      <div class="section">
+        <button class="btn btn-primary" id="printBtn">🖨️ Печать</button>
+      </div>
+      <div class="section">
+        <button class="btn btn-ghost" id="resetBtn">↺ Сбросить</button>
+      </div>
+      <div class="section" style="margin-top:30px">
+        <h3>Памятка</h3>
+        <div style="font-size:12px;color:#888;line-height:1.7">
+          • В диалоге печати: <strong style="color:#ffd166">A4, книжная, 100%</strong><br>
+          • Поля: <strong style="color:#ffd166">Нет / 0</strong><br>
+          • Включи <strong style="color:#ffd166">«Фон»</strong> (Background graphics)<br>
+          • Бумага: 120–160 г/м²<br>
+          • Резать по пунктирным линиям
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="preview-head">
+        <div>Предпросмотр · <strong id="countInfo">0 наклеек</strong></div>
+        <div id="pageInfo">0 листов</div>
+      </div>
+      <div class="pages" id="pages"></div>
+    </main>
+  </div>
+</div>
+
+<!-- ==================== ВКЛАДКА 2: ТОВАРЫ И ЛИМИТЫ ==================== -->
+<div id="tab-inventory" class="tab-content">
+  <div class="inventory-container">
+    <div class="inv-header">
+      <h2>📦 Управление ассортиментом</h2>
+    </div>
+
+    <!-- Блок лимитки -->
+    <div class="card-inv">
+      <h3>📎 Наклейка «Скрепка» (Лимитка)</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Всего выпущено (шт)</label>
+          <input type="number" id="skrepkaLimit" min="1" value="100">
+        </div>
+        <div class="form-group">
+          <label>Уже продано (шт)</label>
+          <input type="number" id="skrepkaSold" min="0" value="0">
+        </div>
+        <div class="form-group">
+          <label>Остаток (автоматически)</label>
+          <input type="text" id="skrepkaRemaining" value="100" disabled style="opacity:.7; background:#222;">
+        </div>
+      </div>
+      <p style="font-size:12px; color:#888; margin-top:8px;">Эти цифры влияют на прогресс-бар и блокировку покупки на сайте.</p>
+    </div>
+
+    <!-- Блок товаров -->
+    <div class="card-inv">
+      <h3>🛍️ Список товаров в каталоге</h3>
+      <div id="productList"></div>
+      <button class="add-btn-inv" id="addProductBtn">+ Добавить новый товар</button>
+    </div>
+
+    <!-- Блок экспорта -->
+    <div class="card-inv" style="border-color:#2a9d8f;">
+      <h3 style="color:#2a9d8f;">💾 Сохранить изменения</h3>
+      <button class="btn-download" id="downloadJsBtn">
+        ⬇️ Скачать data.js
+      </button>
+      <p class="download-hint">
+        Скачайте этот файл и загрузите его на Netlify вместе с остальными файлами сайта (перетащите папку в раздел <strong>Deploys</strong>). Сайт обновится автоматически!
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ==================== ВКЛАДКИ ==================== */
+const tabBtns = document.querySelectorAll('.tab-btn');
+const tabContents = document.querySelectorAll('.tab-content');
+tabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    tabBtns.forEach(b => b.classList.remove('active'));
+    tabContents.forEach(c => c.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.target).classList.add('active');
+  });
+});
+
+/* ==================== ДАННЫЕ (ПО УМОЛЧАНИЮ) ==================== */
+let inventory = {
+  skrepka_limit: 100,
+  skrepka_sold: 0,
+  products: [
+    { id: 1, cat: "sticker", emoji: "🏷️", bg: "#ffd166", title: "Наклейки ТУРБО · 10 шт", desc: "Классическая серия. Яркие, плотные, водонепроницаемые.", price: 100, tag: "Хит" },
+    { id: 2, cat: "sticker", emoji: "💥", bg: "#ff4d8d", title: "Наклейки ТУРБО · 25 шт", desc: "Набор для обмена и коллекции. Только наклейки.", price: 200, tag: "Новинка" },
+    { id: 3, cat: "sticker", emoji: "💖", bg: "#8ecae6", title: "Наклейка «Турбо-сердце»", desc: "Винтаж, водонепроницаемая. 1 шт.", price: 40 },
+    { id: 4, cat: "sticker", emoji: "⭐", bg: "#b8e0a0", title: "Наклейки ТУРБО «Ретро» · 20 шт", desc: "Серия с логотипами и звёздами. Плотная плёнка.", price: 180 },
+    { id: 100, cat: "sticker", emoji: "📎", bg: "linear-gradient(135deg,#ffd166,#ff4d8d)", title: "Наклейка «Скрепка» · ЛИМИТКА", desc: "Только 100 штук в мире. Виниловая, 7 см. Когда закончатся — больше не будет.", price: 300, tag: "ЛИМИТКА 100" },
+    { id: 5, cat: "weapon", emoji: "🌀", bg: "#8ecae6", title: "Бумажный сюрикен", desc: "Модульная сборка, 8 лучей. Летает красиво.", price: 90, tag: "Хит" },
+    { id: 6, cat: "weapon", emoji: "🗡️", bg: "#ffd166", title: "Бумажный меч «Катана»", desc: "Длина 60 см, плотная бумага 200 г/м².", price: 250 },
+    { id: 7, cat: "weapon", emoji: "🔫", bg: "#ff4d8d", title: "Бумажный пистолет «Форсаж»", desc: "Стреляет бумажными пульками. Безопасно.", price: 200, old: 260 },
+    { id: 8, cat: "weapon", emoji: "🛡️", bg: "#b8e0a0", title: "Бумажный щит «Форсаж»", desc: "Круглый щит 35 см, плотный картон + бумага. Держит удар бумажного меча.", price: 320, tag: "Новинка" },
+    { id: 9, cat: "weapon", emoji: "📦", bg: "#ffd166", title: "Бумажные ножны для меча", desc: "Подходят под «Катану» 60 см. Плотная бумага + скотч.", price: 150 },
+    { id: 10, cat: "weapon", emoji: "🎯", bg: "#ff4d8d", title: "Набор «Арсенал» 5 в 1", desc: "Сюрикен, меч, щит, ножны и пистолет. Всё в одном.", price: 690, old: 790, tag: "Выгода" }
+  ]
+};
+
+/* ==================== ЛОГИКА ВКЛАДКИ «ТОВАРЫ» ==================== */
+const skrepkaLimitInput = document.getElementById('skrepkaLimit');
+const skrepkaSoldInput = document.getElementById('skrepkaSold');
+const skrepkaRemainingInput = document.getElementById('skrepkaRemaining');
+const productListEl = document.getElementById('productList');
+
+function updateRemaining() {
+  const limit = Number(skrepkaLimitInput.value) || 100;
+  const sold = Number(skrepkaSoldInput.value) || 0;
+  skrepkaRemainingInput.value = Math.max(0, limit - sold);
+  inventory.skrepka_limit = limit;
+  inventory.skrepka_sold = sold;
+}
+
+skrepkaLimitInput.addEventListener('input', updateRemaining);
+skrepkaSoldInput.addEventListener('input', updateRemaining);
+
+function renderInventory() {
+  skrepkaLimitInput.value = inventory.skrepka_limit;
+  skrepkaSoldInput.value = inventory.skrepka_sold;
+  updateRemaining();
+
+  productListEl.innerHTML = inventory.products.map((p, i) => `
+    <div class="product-item" data-index="${i}">
+      <button class="remove-btn" onclick="removeProduct(${i})">✕ Удалить</button>
+      
+      <div class="form-row">
+        <div class="form-group" style="flex:0 0 80px;">
+          <label>ID</label>
+          <input type="number" value="${p.id}" data-field="id">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Категория</label>
+          <select data-field="cat">
+            <option value="sticker" ${p.cat === 'sticker' ? 'selected' : ''}>Наклейки</option>
+            <option value="weapon" ${p.cat === 'weapon' ? 'selected' : ''}>Оружие</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:0 0 80px;">
+          <label>Эмодзи</label>
+          <input type="text" value="${p.emoji}" data-field="emoji">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Цвет / Градиент</label>
+          <input type="text" value="${p.bg}" data-field="bg" placeholder="#ffd166 или linear-gradient(...)">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group" style="flex:2;">
+          <label>Название</label>
+          <input type="text" value="${p.title}" data-field="title">
+        </div>
+        <div class="form-group" style="flex:0 0 100px;">
+          <label>Цена (₽)</label>
+          <input type="number" value="${p.price}" data-field="price">
+        </div>
+        <div class="form-group" style="flex:0 0 100px;">
+          <label>Старая цена</label>
+          <input type="number" value="${p.old || ''}" data-field="old">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>Тег (Хит, Новинка...)</label>
+          <input type="text" value="${p.tag || ''}" data-field="tag">
+        </div>
+      </div>
+
+      <div class="form-row" style="margin-bottom:0;">
+        <div class="form-group">
+          <label>Описание</label>
+          <textarea data-field="desc">${p.desc}</textarea>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+productListEl.addEventListener('input', (e) => {
+  const field = e.target.dataset.field;
+  if (!field) return;
+  
+  const itemEl = e.target.closest('.product-item');
+  const index = parseInt(itemEl.dataset.index, 10);
+  let value = e.target.value;
+
+  if (['price', 'old', 'id'].includes(field)) {
+    value = value === '' ? null : Number(value);
+  }
+  
+  inventory.products[index][field] = value;
+});
+
+window.removeProduct = function(index) {
+  if (confirm('Удалить этот товар?')) {
+    inventory.products.splice(index, 1);
+    renderInventory();
+  }
+};
+
+document.getElementById('addProductBtn').addEventListener('click', () => {
+  const newId = inventory.products.length > 0 ? Math.max(...inventory.products.map(p => p.id)) + 1 : 1;
+  inventory.products.push({
+    id: newId,
+    cat: "sticker",
+    emoji: "✨",
+    bg: "#ffffff",
+    title: "Новый товар",
+    desc: "Описание товара",
+    price: 100
+  });
+  renderInventory();
+});
+
+document.getElementById('downloadJsBtn').addEventListener('click', () => {
+  const cleanProducts = inventory.products.map(p => {
+    const copy = { ...p };
+    if (copy.old === null || copy.old === undefined || copy.old === '') delete copy.old;
+    if (!copy.tag || copy.tag.trim() === '') delete copy.tag;
+    return copy;
+  });
+
+  const dataToSave = {
+    skrepka_limit: inventory.skrepka_limit,
+    skrepka_sold: inventory.skrepka_sold,
+    products: cleanProducts
+  };
+
+  // Генерируем JS-файл вместо JSON
+  const jsContent = "window.SITE_DATA = " + JSON.stringify(dataToSave, null, 2) + ";\n";
+  const dataStr = "data:text/javascript;charset=utf-8," + encodeURIComponent(jsContent);
+  
+  const a = document.createElement('a');
+  a.setAttribute("href", dataStr);
+  a.setAttribute("download", "data.js");
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+});
+
+renderInventory();
+
+
+/* ==================== ГЕНЕРАТОР НАКЛЕЕК ==================== */
+const DESIGNS = [
+  { id:'turbo',    emoji:'⭐', label:'ТУРБО',      color:'#ffd166', dark:true },
+  { id:'forsazh',  emoji:'🗡️', label:'ФОРСАЖ',     color:'#e63946' },
+  { id:'shield',   emoji:'🛡️', label:'ЩИТ',        color:'#2f6f9f' },
+  { id:'shuriken', emoji:'🌀', label:'СЮРИКЕН',    color:'#2a9d8f' },
+  { id:'boom',     emoji:'💥', label:'БУМ',        color:'#ff4d8d' },
+  { id:'heart',    emoji:'💖', label:'СЕРДЦЕ',     color:'#8ecae6', dark:true },
+  { id:'light',    emoji:'⚡', label:'МОЛНИЯ',     color:'#ffd166', dark:true },
+  { id:'star',     emoji:'🌟', label:'ЗВЕЗДА',     color:'#b8e0a0', dark:true },
+  { id:'bum',      emoji:'📄', label:'БУМАЖНОСТЬ', color:'#f7f2e7', dark:true },
+  { id:'skrepka',  emoji:'📎', label:'СКРЕПКА',    color:'#ff4d8d' }
+];
+
+const SIZES = {
+  small:  { mm:30, cols:6, rows:9, label:'Маленькие', hint:'30 мм · 54/лист' },
+  medium: { mm:45, cols:4, rows:6, label:'Средние',   hint:'45 мм · 24/лист' },
+  large:  { mm:60, cols:3, rows:4, label:'Крупные',   hint:'60 мм · 12/лист' }
+};
+
+const state = {
+  selected: new Set(['turbo','forsazh','shield','shuriken','boom']),
+  qty: Object.fromEntries(DESIGNS.map(d => [d.id, 1])),
+  size: 'medium'
+};
+
+const designsList = document.getElementById('designsList');
+const sizesList = document.getElementById('sizesList');
+const summaryEl = document.getElementById('summary');
+const pagesEl = document.getElementById('pages');
+const countInfo = document.getElementById('countInfo');
+const pageInfo = document.getElementById('pageInfo');
+
+DESIGNS.forEach(d => {
+  const row = document.createElement('div');
+  row.className = 'design-row' + (state.selected.has(d.id) ? ' active' : '');
+  row.innerHTML = `
+    <input type="checkbox" ${state.selected.has(d.id) ? 'checked' : ''}>
+    <span class="design-emoji">${d.emoji}</span>
+    <span class="design-name">${d.label}</span>
+    <input type="number" class="design-qty" min="1" max="200" value="${state.qty[d.id]}" ${state.selected.has(d.id) ? '' : 'disabled'}>
+  `;
+  const cb = row.querySelector('input[type="checkbox"]');
+  const q = row.querySelector('.design-qty');
+
+  row.addEventListener('click', e => {
+    if(e.target.tagName === 'INPUT') return;
+    cb.checked = !cb.checked;
+    cb.dispatchEvent(new Event('change', {bubbles:true}));
+  });
+  cb.addEventListener('change', () => {
+    if(cb.checked) state.selected.add(d.id);
+    else state.selected.delete(d.id);
+    row.classList.toggle('active', cb.checked);
+    q.disabled = !cb.checked;
+    renderStickers();
+  });
+  q.addEventListener('input', () => {
+    const v = Math.max(1, Math.min(200, parseInt(q.value,10) || 1));
+    q.value = v;
+    state.qty[d.id] = v;
+    renderStickers();
+  });
+  designsList.appendChild(row);
+});
+
+Object.entries(SIZES).forEach(([key, s]) => {
+  const b = document.createElement('button');
+  b.className = 'size-btn' + (state.size === key ? ' active' : '');
+  b.dataset.size = key;
+  b.innerHTML = `<span>${s.label}</span><small>${s.hint}</small>`;
+  b.addEventListener('click', () => {
+    state.size = key;
+    document.querySelectorAll('.size-btn').forEach(x => x.classList.toggle('active', x.dataset.size === key));
+    renderStickers();
+  });
+  sizesList.appendChild(b);
+});
+
+function perSheet(){ const s = SIZES[state.size]; return s.cols * s.rows; }
+function buildList(){
+  const out = [];
+  DESIGNS.forEach(d => {
+    if(!state.selected.has(d.id)) return;
+    const n = state.qty[d.id] || 0;
+    for(let i=0;i<n;i++) out.push(d);
+  });
+  return out;
+}
+function chunk(arr, size){
+  const out = [];
+  for(let i=0;i<arr.length;i+=size) out.push(arr.slice(i, i + size));
+  return out;
+}
+function renderStickerHTML(d){
+  return `
+    <div class="sticker">
+      <div class="sticker-inner ${d.dark?'dark':''}" style="--c:${d.color}">
+        <div class="sticker-emoji">${d.emoji}</div>
+        <div class="sticker-label">${d.label}</div>
+      </div>
+    </div>`;
+}
+
+function renderStickers(){
+  const stickers = buildList();
+  const size = SIZES[state.size];
+  const ps = perSheet();
+  const pages = chunk(stickers, ps);
+
+  countInfo.textContent = stickers.length + ' наклеек';
+  pageInfo.textContent = pages.length + ' ' + (pages.length === 1 ? 'лист' : (pages.length >= 2 && pages.length <= 4 ? 'листа' : 'листов'));
+
+  summaryEl.innerHTML = `
+    Размер: <strong>${size.mm} мм</strong><br>
+    Сетка: <strong>${size.cols}×${size.rows}</strong> = ${ps}/лист<br>
+    Дизайнов: <strong>${state.selected.size}</strong><br>
+    Наклеек: <strong>${stickers.length}</strong><br>
+    Листов: <strong>${pages.length}</strong>
+  `;
+
+  if(pages.length === 0){
+    pagesEl.innerHTML = `<div class="empty">Выбери хотя бы один дизайн слева</div>`;
+    return;
+  }
+
+  pagesEl.innerHTML = pages.map((pageStickers, idx) => `
+    <div class="page" data-page="Лист ${idx+1} / ${pages.length}"
+         style="grid-template-columns:repeat(${size.cols},${size.mm}mm);--sz:${size.mm}mm">
+      ${pageStickers.map(renderStickerHTML).join('')}
+    </div>
+  `).join('');
+}
+
+document.getElementById('printBtn').addEventListener('click', () => {
+  if(buildList().length === 0){ alert('Выбери хотя бы один дизайн'); return; }
+  window.print();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if(!confirm('Сбросить все настройки?')) return;
+  state.selected = new Set(['turbo','forsazh','shield','shuriken','boom']);
+  DESIGNS.forEach(d => state.qty[d.id] = 1);
+  state.size = 'medium';
+  document.querySelectorAll('.design-row').forEach((row, i) => {
+    const d = DESIGNS[i];
+    const cb = row.querySelector('input[type="checkbox"]');
+    const q = row.querySelector('.design-qty');
+    cb.checked = state.selected.has(d.id);
+    row.classList.toggle('active', cb.checked);
+    q.disabled = !cb.checked;
+    q.value = 1;
+  });
+  document.querySelectorAll('.size-btn').forEach(x => x.classList.toggle('active', x.dataset.size === 'medium'));
+  renderStickers();
+});
+
+renderStickers();
+</script>
+</body>
+</html>
