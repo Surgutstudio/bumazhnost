@@ -3,256 +3,670 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Бумажность форсажность — наклейки ТУРБО и бумажное оружие в Сургуте</title>
+<title>Бумажность форсажность — Официальный магазин</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Rubik:wght@400;500;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f; --surface: #1f1f1f; --surface-hover: #2f2f2f;
+    --text: #f1f1f1; --text-muted: #aaaaaa; --purple: #a855f7;
+    --purple-dark: #7e22ce; --green: #2a9d8f; --red: #e63946; --yellow: #ffd166;
+    --border: #333;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Roboto', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; overflow-x: hidden; }
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+  .wrap { width: min(1200px, 94vw); margin: 0 auto; }
+  a { color: inherit; text-decoration: none; cursor: pointer; }
+
+  header { position: sticky; top: 0; z-index: 100; background: rgba(15,15,15,0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); padding: 12px 0; }
+  .nav { display: flex; align-items: center; justify-content: space-between; }
+  .logo { display: flex; align-items: center; gap: 10px; font-family: 'Bungee', cursive; font-size: 20px; }
+  .logo-icon { width: 24px; height: 24px; fill: var(--purple); }
+  .nav-links { display: flex; gap: 24px; font-weight: 500; color: var(--text-muted); }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); }
+  
+  .nav-actions { display: flex; gap: 12px; align-items: center; }
+  .auth-btn { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+  .auth-btn:hover { background: var(--surface); border-color: var(--purple); }
+  .auth-btn.logged-in { background: var(--purple); border-color: var(--purple); }
+  .cart-btn { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 8px 16px; border-radius: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+  .cart-btn:hover { background: var(--surface-hover); }
+  .cart-count { background: var(--purple); color: #fff; padding: 2px 8px; border-radius: 10px; font-size: 13px; }
+
+  .page { display: none; animation: fadeIn 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  .hero { position: relative; padding: 80px 0; display: flex; align-items: center; justify-content: space-between; min-height: 60vh; }
+  .hero-text { flex: 1; z-index: 2; max-width: 500px; }
+  .hero-badge { display: inline-block; background: rgba(168,85,247,0.1); color: var(--purple); padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 12px; border: 1px solid var(--purple); margin-bottom: 20px; }
+  .hero h1 { font-family: 'Bungee', cursive; font-size: 56px; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(135deg, #fff, var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero p { color: var(--text-muted); font-size: 18px; margin-bottom: 30px; }
+  .btn-main { background: var(--purple); color: #fff; padding: 14px 28px; border-radius: 8px; font-weight: 700; font-size: 16px; border: none; cursor: pointer; transition: 0.2s; }
+  .btn-main:hover { background: var(--purple-dark); transform: translateY(-2px); }
+
+  .scene-3d { position: relative; width: 400px; height: 400px; perspective: 1000px; }
+  .shuriken { position: absolute; top: 50%; left: -50px; width: 60px; height: 60px; transform-origin: center; filter: drop-shadow(0 0 15px var(--purple)); animation: flyAndHit 4s infinite cubic-bezier(0.4,0,0.2,1); }
+  .shield { position: absolute; top: 50%; right: 20px; width: 120px; height: 120px; transform: translateY(-50%); filter: drop-shadow(0 0 20px rgba(168,85,247,0.6)); animation: shieldReaction 4s infinite cubic-bezier(0.4,0,0.2,1); }
+  .echo-wave { position: absolute; top: 50%; right: 80px; width: 10px; height: 10px; border-radius: 50%; border: 3px solid var(--purple); transform: translateY(-50%) scale(0); opacity: 0; animation: echoEffect 4s infinite cubic-bezier(0.4,0,0.2,1); }
+  @keyframes flyAndHit { 0% { transform: translateY(-50%) rotateZ(0) translateX(0); opacity: 1; } 40% { transform: translateY(-50%) rotateZ(1080deg) translateX(350px); opacity: 1; } 50% { transform: translateY(-50%) rotateZ(1440deg) translateX(280px) scale(0.8); opacity: 0; } 100% { opacity: 0; } }
+  @keyframes shieldReaction { 0%,40% { transform: translateY(-50%) rotateY(0) scale(1); } 45% { transform: translateY(-50%) rotateY(30deg) scale(1.1); } 50% { transform: translateY(-50%) rotateY(-10deg) scale(0.95); } 55%,100% { transform: translateY(-50%) rotateY(0) scale(1); } }
+  @keyframes echoEffect { 0%,45% { transform: translateY(-50%) scale(0); opacity: 0; } 50% { transform: translateY(-50%) scale(1); opacity: 1; } 100% { transform: translateY(-50%) scale(15); opacity: 0; } }
+
+  .section-title { font-family: 'Bungee', cursive; font-size: 32px; margin-bottom: 24px; margin-top: 40px; }
+  .section-title span { color: var(--purple); }
+  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; margin-bottom: 60px; }
+  .card { background: var(--surface); border-radius: 12px; overflow: hidden; position: relative; border: 1px solid var(--border); transition: 0.2s; }
+  .card:hover { transform: translateY(-4px); border-color: var(--purple); }
+  .card-img { height: 160px; display: grid; place-items: center; font-size: 60px; }
+  .card-tag { position: absolute; top: 10px; left: 10px; background: var(--purple); color: #fff; font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 4px; }
+  .status-badge { position: absolute; top: 10px; right: 10px; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 4px; text-transform: uppercase; }
+  .status-instock { background: rgba(42,157,143,0.2); color: var(--green); border: 1px solid var(--green); }
+  .status-preorder { background: rgba(255,209,102,0.2); color: var(--yellow); border: 1px solid var(--yellow); }
+  .status-outstock { background: rgba(230,57,70,0.2); color: var(--red); border: 1px solid var(--red); }
+  .status-rare { background: rgba(168,85,247,0.2); color: var(--purple); border: 1px solid var(--purple); animation: pulseRare 2s infinite; }
+  @keyframes pulseRare { 0%,100% { box-shadow: 0 0 0px var(--purple); } 50% { box-shadow: 0 0 10px var(--purple); } }
+  .card-body { padding: 16px; }
+  .card-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+  .card-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 16px; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .price { font-size: 18px; font-weight: 900; color: var(--purple); }
+  .add-btn { background: #333; color: #fff; border: none; padding: 8px 14px; border-radius: 6px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+  .add-btn:hover:not(:disabled) { background: var(--purple); }
+  .add-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .static-page { padding: 40px 0; max-width: 800px; margin: 0 auto; }
+  .static-page h2 { font-family: 'Bungee', cursive; font-size: 36px; margin-bottom: 24px; color: var(--purple); }
+
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; }
+  .overlay.show { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: -400px; width: 100%; max-width: 400px; height: 100%; background: var(--surface); z-index: 201; display: flex; flex-direction: column; transition: right 0.3s; border-left: 1px solid var(--border); }
+  .drawer.open { right: 0; }
+  .drawer-head { padding: 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .close-btn { background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; }
+  .drawer-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+  .cart-item { display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+  .cart-item-img { width: 50px; height: 50px; border-radius: 8px; display: grid; place-items: center; font-size: 24px; }
+  .cart-item-info { flex: 1; }
+  .cart-item-info h4 { font-size: 14px; margin-bottom: 4px; }
+  .cart-qty { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+  .cart-qty button { background: #333; border: none; color: #fff; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; }
+  .drawer-foot { padding: 20px; border-top: 1px solid var(--border); }
+  .total-row { display: flex; justify-content: space-between; font-weight: 900; font-size: 18px; margin-bottom: 16px; }
+  .promo-row { display: flex; gap: 8px; margin-bottom: 16px; }
+  .promo-row input { flex: 1; padding: 10px; background: var(--bg); border: 1px solid #444; color: #fff; border-radius: 6px; }
+  .promo-row button { background: #333; border: none; color: #fff; padding: 0 16px; border-radius: 6px; cursor: pointer; font-weight: 700; }
+  .discount-row { display: flex; justify-content: space-between; color: var(--green); font-weight: 700; margin-bottom: 8px; font-size: 14px; }
+  .checkout-btn { width: 100%; background: var(--purple); color: #fff; border: none; padding: 14px; border-radius: 8px; font-weight: 700; cursor: pointer; }
+
+  .modal { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.9); opacity: 0; pointer-events: none; transition: 0.3s; }
+  .modal.open { opacity: 1; pointer-events: auto; }
+  .modal-content { background: var(--surface); padding: 30px; border-radius: 12px; width: 90%; max-width: 400px; border: 1px solid var(--border); }
+  .modal-content h3 { margin-bottom: 16px; font-family: 'Bungee', cursive; }
+  .modal-content input { width: 100%; padding: 12px; background: var(--bg); border: 1px solid #444; color: #fff; border-radius: 8px; margin-bottom: 12px; }
+  .modal-content button { width: 100%; background: var(--purple); color: #fff; border: none; padding: 12px; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; }
+  .modal-content .switch-mode { font-size: 13px; color: var(--text-muted); text-align: center; cursor: pointer; }
+
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 100px); background: var(--purple); color: #fff; padding: 12px 24px; border-radius: 30px; font-weight: 700; z-index: 999; transition: 0.3s; }
+  .toast.show { transform: translate(-50%, 0); }
+
+  @keyframes paperFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+  @keyframes confettiFall { 0% { transform: translateY(0) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+  @keyframes planeFly { 0% { transform: translateX(0) rotate(-10deg); opacity: 1; } 100% { transform: translateX(calc(100vw + 200px)) rotate(15deg); opacity: 0.6; } }
+  @keyframes shakeAnim { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-10px) rotate(-1deg); } 40%, 80% { transform: translateX(10px) rotate(1deg); } }
+  body.shake { animation: shakeAnim 0.5s ease-in-out; }
+  .egg-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 12px; max-height: 50vh; overflow-y: auto; padding-right: 10px; text-align: left; margin-top: 15px; }
+  .egg-item { padding: 6px; border-radius: 6px; background: #2a2a2a; color: #888; display: flex; gap: 8px; align-items: center; }
+  .egg-item.found { background: rgba(42,157,143,0.2); color: var(--green); font-weight: bold; border: 1px solid var(--green); }
+  .egg-item span { font-family: monospace; opacity: 0.6; font-size: 11px; }
+
+  .timeline { display: flex; flex-direction: column; gap: 20px; position: relative; padding-left: 20px; border-left: 2px solid #333; margin-top: 20px; }
+  .step { position: relative; padding-left: 20px; }
+  .step::before { content: ''; position: absolute; left: -31px; top: 0; width: 20px; height: 20px; border-radius: 50%; background: #333; border: 3px solid var(--surface); }
+  .step.active::before { background: var(--purple); box-shadow: 0 0 10px var(--purple); }
+  .step.done::before { background: var(--green); }
+  .step-title { font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+  .step.active .step-title { color: var(--purple); }
+  .step.done .step-title { color: var(--green); }
+  .step-desc { font-size: 13px; color: var(--text-muted); }
+  .qr-box { margin-top: 30px; text-align: center; background: #fff; padding: 20px; border-radius: 12px; display: none; }
+  .qr-box img { width: 150px; height: 150px; margin-bottom: 10px; }
+  .qr-box p { color: #000; font-weight: 700; }
+
+  footer { text-align: center; padding: 40px 20px; color: #666; font-size: 13px; border-top: 1px solid var(--border); margin-top: 40px; }
+  footer span { cursor: pointer; }
+</style>
 </head>
 <body>
 
 <header>
   <div class="wrap nav">
-    <a href="#" class="logo">
-      <span class="logo-badge">📎</span>
-      <span>Бумажность<br>форсажность<small>наклейки · оружие · Сургут</small></span>
-    </a>
-    <nav class="links">
-      <a href="#catalog">Каталог</a>
-      <a href="#how">Как заказать</a>
-      <a href="#faq">Вопросы</a>
-      <a href="#contacts">Контакты</a>
-    </nav>
-    <button class="cart-btn" id="openCart">🛒 Корзина <span class="cart-count" id="cartCount">0</span></button>
+    <div class="logo" onclick="navigate('home')">
+      <svg class="logo-icon" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2zm0 4.5l6.5 13.5h-13L12 6.5z"/></svg>
+      <span>Бумажность</span>
+    </div>
+    <div class="nav-links">
+      <a onclick="navigate('home')" id="nav-home" class="active">Главная</a>
+      <a onclick="navigate('catalog')" id="nav-catalog">Каталог</a>
+      <a onclick="navigate('delivery')" id="nav-delivery">Доставка</a>
+      <a onclick="navigate('contacts')" id="nav-contacts">Контакты</a>
+    </div>
+    <div class="nav-actions">
+      <button class="auth-btn" id="authBtn" onclick="openAuth()">Войти</button>
+      <button class="cart-btn" id="openCart">Корзина <span class="cart-count" id="cartCount">0</span></button>
+    </div>
   </div>
 </header>
 
-<section class="hero">
-  <div class="wrap hero-grid">
-    <div>
-      <div class="kicker">🔥 Компания в Сургуте</div>
-      <h1>Бумажность<br><em>форсажность</em></h1>
-      <p class="lead">
-        Наклейки ТУРБО, бумажное оружие и лимитка «Скрепка» (всего <span id="heroLimit">100</span> штук).
-        Всё для школы, коллекции и бумажного форсажа — в Сургуте.
-      </p>
-      <div class="hero-actions">
-        <a href="#catalog" class="btn btn-main" id="btnCatalog">Смотреть каталог →</a>
-        <a href="#how" class="btn btn-ghost" id="btnHow">Как это работает</a>
+<main>
+  <section id="page-home" class="page active wrap">
+    <div class="hero">
+      <div class="hero-text">
+        <div class="hero-badge">ОФИЦИАЛЬНЫЙ МАГАЗИН</div>
+        <h1>БУМАЖНОСТЬ<br>ФОРСАЖНОСТЬ</h1>
+        <p>Наклейки, бумажное оружие и лимитки. Полноценный магазин с регистрацией, статусами, трекером и пасхалками.</p>
+        <button onclick="navigate('catalog')" class="btn-main">Смотреть каталог</button>
+      </div>
+      <div class="scene-3d">
+        <div class="echo-wave"></div>
+        <svg class="shield" viewBox="0 0 24 24" fill="none" stroke="var(--purple)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <svg class="shuriken" viewBox="0 0 24 24" fill="var(--purple)"><path d="M12 2l3 7h7l-5.5 4.5 2 7.5-6.5-4.5-6.5 4.5 2-7.5L2 9h7z"/></svg>
       </div>
     </div>
-    <div class="hero-art" id="heroArt" aria-hidden="true">
-      <div class="art-card art-1">🏷️</div>
-      <div class="art-card art-2">📎</div>
-      <div class="art-card art-3">🗡️</div>
-      <div class="art-card art-4">🎯</div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<section class="limited-banner" id="limited">
-  <div class="wrap">
-    <div class="limited-card" id="limitedCard">
-      <div class="limited-badge">🔥 ЛИМИТИРОВАННАЯ СЕРИЯ</div>
-      <div class="limited-visual">📎</div>
-      <div class="limited-info">
-        <h2>Наклейка «Скрепка»</h2>
-        <p>Только <strong><span id="heroLimitText">100</span> штук в мире</strong>. Виниловая, 7 см. Когда закончатся — больше не будет никогда.</p>
-        <div class="limited-progress"><div class="limited-bar" id="limitedBar"></div></div>
-        <div class="limited-text">Осталось <strong id="limitedLeft">100</strong> из <span id="limitedMaxText">100</span></div>
+  <section id="page-catalog" class="page wrap">
+    <h2 class="section-title">Каталог <span>товаров</span></h2>
+    <div class="products-grid" id="productsGrid"></div>
+  </section>
+
+  <section id="page-delivery" class="page wrap">
+    <div class="static-page">
+      <h2>Доставка и трекер</h2>
+      <p style="color: var(--text-muted); margin-bottom: 20px;">Введите номер заказа, чтобы отследить его.</p>
+      
+      <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+        <input type="text" id="trackOrderId" placeholder="Номер (BUM-XXXXX)" style="flex:1; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: #fff; border-radius: 8px;">
+        <button onclick="trackOrder()" class="btn-main" style="padding: 12px 24px;">Отследить</button>
       </div>
-      <button class="btn limited-cta" id="limitedBuy">Забрать за 300 ₽ →</button>
-    </div>
-  </div>
-</section>
 
-<div class="marquee" id="marquee" aria-hidden="true">
-  <div class="marquee-track" id="marqueeTrack">
-    <span>
-      <b>Лимитка «Скрепка» 100 шт</b> · наклейки ТУРБО · бумажные щиты · мечи · ножны · сюрикены · <b>доставка по Сургуту</b> · оплата курьеру · <b>Лимитка «Скрепка» 100 шт</b> · наклейки ТУРБО · бумажные щиты · мечи · ножны · сюрикены · <b>доставка по Сургуту</b> · оплата курьеру ·
-    </span>
-    <span>
-      <b>Лимитка «Скрепка» 100 шт</b> · наклейки ТУРБО · бумажные щиты · мечи · ножны · сюрикены · <b>доставка по Сургуту</b> · оплата курьеру · <b>Лимитка «Скрепка» 100 шт</b> · наклейки ТУРБО · бумажные щиты · мечи · ножны · сюрикены · <b>доставка по Сургуту</b> · оплата курьеру ·
-    </span>
-  </div>
-</div>
-
-<section id="catalog">
-  <div class="wrap">
-    <div class="sec-head">
-      <div><h2>Каталог <span class="accent">бумажностей</span></h2></div>
-      <p>Всё проверено лично: наклейки плотные, оружие бумажное, но выглядит форсажно.</p>
-    </div>
-    <div class="filters" id="filters">
-      <button class="chip active" data-filter="all">Всё подряд</button>
-      <button class="chip" data-filter="sticker">Наклейки ТУРБО</button>
-      <button class="chip" data-filter="weapon">Бумажное оружие</button>
-    </div>
-    <div class="grid" id="products"></div>
-  </div>
-</section>
-
-<section id="how" style="background:var(--paper-2);border-block:3px solid var(--line)">
-  <div class="wrap">
-    <div class="sec-head">
-      <h2>Как <span class="accent">заказать</span></h2>
-      <p>Три шага — и заказ уже готов к выдаче в Сургуте.</p>
-    </div>
-    <div class="steps">
-      <div class="step">
-        <div class="step-num" id="step1">01</div>
-        <h3>Кидай в корзину</h3>
-        <p>Выбирай наклейки и бумажное оружие. Указывай количество прямо на карточке.</p>
-      </div>
-      <div class="step">
-        <div class="step-num" id="step2">02</div>
-        <h3>Оформляй заказ</h3>
-        <p>Введи email, проверь список товаров и нажми «Подтвердить». Мы свяжемся в течение часа.</p>
-      </div>
-      <div class="step">
-        <div class="step-num" id="step3">03</div>
-        <h3>Оплачивай курьеру</h3>
-        <p>Курьер привозит заказ по Сургуту, оплата наличными или картой при получении.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section id="faq">
-  <div class="wrap">
-    <div class="sec-head" style="justify-content:center;text-align:center;flex-direction:column;align-items:center">
-      <h2>Частые <span class="accent">вопросы</span></h2>
-      <p style="margin-top:10px">Если не нашёл ответ — пиши на почту, отвечаем быстро.</p>
-    </div>
-    <div class="faq">
-      <details open>
-        <summary>Что за лимитка «Скрепка»?</summary>
-        <p>Виниловая наклейка 7 см с легендарной скрепкой. Выпущено ровно <strong><span id="faqLimit">100</span> штук</strong>, каждая с номером. Когда счётчик дойдёт до нуля — больше не напечатаем.</p>
-      </details>
-      <details>
-        <summary>Наклейки ТУРБО — это не жевачки?</summary>
-        <p>Да, у нас именно наклейки ТУРБО: яркие, плотные, водонепроницаемые. Никаких жевачек — только наклейки и бумажные товары.</p>
-      </details>
-      <details>
-        <summary>Бумажное оружие — это же просто бумага?</summary>
-        <p>Почти. Используем плотную бумагу 160–200 г/м², модульную сборку и лёгкое ламинирование краёв. Оно не боевое, но в классе выглядит максимально форсажно.</p>
-      </details>
-      <details>
-        <summary>Как происходит оплата?</summary>
-        <p>Оплата курьеру при получении в Сургуте: наличными или картой. Онлайн-оплаты на сайте нет — сначала подтверждаем заказ, потом оплата.</p>
-      </details>
-      <details>
-        <summary>Какая доставка?</summary>
-        <p>Доставляем по Сургуту: курьер 1–2 дня, самовывоз — бесплатно. По почте не отправляем.</p>
-      </details>
-      <details>
-        <summary>Можно оптом для класса или школы?</summary>
-        <p>Да! Для школ и классов Сургута: от 20 наборов — скидка 15%, от 50 — 25% и бесплатная доставка по городу. Напиши на почту с пометкой «опт».</p>
-      </details>
-    </div>
-  </div>
-</section>
-
-<footer id="contacts">
-  <div class="wrap">
-    <div class="foot-grid">
-      <div class="foot-about">
-        <h4>Бумажность форсажность · Сургут</h4>
-        <p>Небольшая компания в Сургуте. Наклейки ТУРБО, бумажное оружие и лимитированные серии.</p>
-      </div>
-      <div>
-        <h4>Почта</h4>
-        <div class="foot-list">
-          <a href="mailto:bumazhnost@yandex.ru" id="footEmail">bumazhnost@yandex.ru</a>
+      <div class="tracker-box" id="trackerBox" style="display:none; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 30px;">
+        <div style="font-size: 20px; font-weight: 900; margin-bottom: 20px;">Заказ <span id="orderIdDisplay"></span></div>
+        <div class="timeline">
+          <div class="step" data-status="placed"><div class="step-title">Оформлен</div><div class="step-desc">Мы получили ваш заказ.</div></div>
+          <div class="step" data-status="processing"><div class="step-title">Делается</div><div class="step-desc">Собираем и упаковываем.</div></div>
+          <div class="step" data-status="sorting"><div class="step-title">Сортировка</div><div class="step-desc">Передан курьеру.</div></div>
+          <div class="step" data-status="shipping"><div class="step-title">В пути</div><div class="step-desc">Курьер едет к вам.</div></div>
+          <div class="step" data-status="arrived"><div class="step-title">Прибыл</div><div class="step-desc">Ожидайте курьера.</div></div>
+        </div>
+        <div class="qr-box" id="qrBox">
+          <img id="qrImage" src="" alt="QR">
+          <p>Покажите курьеру</p>
         </div>
       </div>
-      <div>
-        <h4>Оплата и доставка</h4>
-        <div class="foot-list">
-          <span>Оплата курьеру при получении</span>
-          <span>Курьер по Сургуту — 1–2 дня</span>
-          <span>Самовывоз — бесплатно</span>
-          <span>Только Сургут</span>
-        </div>
+      <div id="noOrderMessage" style="color: var(--text-muted); text-align: center; padding: 40px; border: 1px dashed var(--border); border-radius: 12px; margin-top: 20px;">
+        Введите номер заказа выше.
       </div>
     </div>
-    <div class="foot-bottom">
-      <span id="footCopyright">© 2025 Бумажность форсажность. Все бумажности защищены.</span>
-      <span>Сделано с любовью к бумаге и наклейкам 📎</span>
-    </div>
-  </div>
-</footer>
+  </section>
 
-<div class="overlay" id="overlay"></div>
-<aside class="drawer" id="drawer" aria-label="Корзина">
-  <div class="drawer-head">
-    <h3>🛒 Корзина</h3>
-    <button class="close-btn" id="closeCart" aria-label="Закрыть">✕</button>
-  </div>
+  <section id="page-contacts" class="page wrap">
+    <div class="static-page">
+      <h2>Контакты</h2>
+      <p>По всем вопросам пишите на нашу почту:</p>
+      <p style="font-size: 24px; font-weight: 900; color: var(--text); margin-top: 20px;"><a href="mailto:bumazhnost@yandex.ru">bumazhnost@yandex.ru</a></p>
+    </div>
+  </section>
+</main>
+
+<footer>© 2025 Бумажность форсажность. <span id="eggHint">Тут спрятаны 100 пасхалок 👀</span></footer>
+
+<div class="overlay" id="overlay" onclick="closeAll()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-head"><h3>Корзина</h3><button class="close-btn" onclick="closeAll()">&times;</button></div>
   <div class="drawer-body" id="cartBody"></div>
   <div class="drawer-foot">
     <div class="promo-row">
-      <input type="text" id="promoInput" placeholder="Промокод" aria-label="Промокод">
-      <button class="promo-btn" id="applyPromo">Применить</button>
+      <input type="text" id="promoInput" placeholder="Промокод">
+      <button onclick="applyPromo()">Применить</button>
     </div>
-    <div class="promo-msg" id="promoMsg"></div>
-    <div class="discount-row" id="discountRow" style="display:none">
-      <span>Скидка:</span>
-      <span id="discountSum">0 ₽</span>
+    <div class="discount-row" id="discountRow" style="display:none;">
+      <span>Скидка:</span><span id="discountSum">0 ₽</span>
     </div>
-    <div class="total-row">
-      <span>Итого:</span>
-      <span class="sum" id="cartTotal" style="cursor:pointer">0 ₽</span>
-    </div>
-    <button class="btn btn-main checkout" id="checkoutBtn">Оформить заказ</button>
-  </div>
-</aside>
-
-<div class="pay-modal" id="payModal" aria-label="Оформление заказа">
-  <div class="pay-card">
-    <div class="pay-head">
-      <h3>📦 Оформление заказа</h3>
-      <button class="close-btn" id="closePay" aria-label="Закрыть">✕</button>
-    </div>
-    <div class="pay-body" id="payBody">
-      <div class="pay-summary" id="paySummary"></div>
-      <div class="email-field">
-        <label for="customerEmail">Ваш email</label>
-        <input type="email" id="customerEmail" placeholder="you@example.com" autocomplete="email">
-        <div class="hint">На него придёт подтверждение заказа и детали доставки.</div>
-      </div>
-      <div class="pay-label">Способ оплаты</div>
-      <div class="pay-methods" id="payMethods">
-        <label class="pay-opt selected" data-method="courier">
-          <input type="radio" name="pay" value="courier" checked>
-          <span class="opt-text">
-            <strong>💵 Курьеру при получении</strong>
-            <small>Курьер привезёт заказ по Сургуту. Оплата наличными или картой курьеру.</small>
-          </span>
-        </label>
-      </div>
-      <div class="pay-note" id="payNote">Наличными или картой курьеру в Сургуте при получении заказа.</div>
-    </div>
-    <div class="pay-success" id="paySuccess">
-      <div class="check">✓</div>
-      <h4>Заказ оформлен</h4>
-      <p id="paySuccessText"></p>
-      <div class="mail-box" id="payMailBox">
-        Напишите нам на <a href="mailto:bumazhnost@yandex.ru">bumazhnost@yandex.ru</a>, чтобы подтвердить заказ и согласовать доставку.
-      </div>
-      <button class="btn btn-main" id="payDoneBtn" style="justify-content:center">Отлично</button>
-    </div>
-    <div class="pay-foot" id="payFoot">
-      <button class="btn btn-main pay-submit" id="payBtn">Подтвердить заказ</button>
-    </div>
+    <div class="total-row"><span>Итого:</span><span id="cartTotal">0 ₽</span></div>
+    <button class="checkout-btn" onclick="startCheckout()">Оформить заказ</button>
   </div>
 </div>
 
-<div class="toast" id="toast">✅ Добавлено в корзину</div>
+<div class="modal" id="authModal">
+  <div class="modal-content">
+    <h3 id="authTitle">Вход</h3>
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPass" placeholder="Пароль">
+    <button id="authSubmitBtn" onclick="submitAuth()">Войти</button>
+    <div class="switch-mode" onclick="toggleAuthMode()" id="authSwitchText">Нет аккаунта? Зарегистрироваться</div>
+  </div>
+</div>
 
-<!-- ПОДКЛЮЧАЕМ ФАЙЛЫ -->
-<script src="./data.js"></script>
-<script src="./app.js"></script>
+<div class="modal" id="orderModal">
+  <div class="modal-content">
+    <h3>Подтверждение</h3>
+    <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Оплата при получении курьеру.</p>
+    <input type="email" id="orderEmail" placeholder="Ваш email" readonly>
+    <button onclick="confirmOrder()">Подтвердить заказ</button>
+  </div>
+</div>
 
+<div class="modal" id="eggModal">
+  <div class="modal-content" style="max-width: 600px;">
+    <h3 style="text-align:center;">🥚 Пасхалки</h3>
+    <div style="text-align:center; font-size:14px; margin-bottom:10px;">Найдено: <strong id="eggsFound">0 / 100</strong></div>
+    <div class="egg-list" id="eggList"></div>
+    <button onclick="closeAll()" style="margin-top:15px;">Закрыть</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">Готово</div>
+
+<!-- FIREBASE SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+<script>
+// ТВОЙ КОНФИГ FIREBASE
+const firebaseConfig = {
+  apiKey: "AIzaSyAXTFwBiq682yjwse0Her1tyScFDm9Ntzg",
+  authDomain: "bumazhnost.firebaseapp.com",
+  databaseURL: "https://bumazhnost-default-rtdb.firebaseio.com",
+  projectId: "bumazhnost",
+  storageBucket: "bumazhnost.firebasestorage.app",
+  messagingSenderId: "457328783159",
+  appId: "1:457328783159:web:5ae415b0ed42bc7c48f4b2",
+  measurementId: "G-G60FWGW5KK"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let PRODUCTS = [];
+let currentUser = null;
+let isLoginMode = true;
+
+// ТОВАРЫ ПО УМОЛЧАНИЮ (если база пустая)
+const DEFAULT_PRODUCTS = [
+  { id:1, status:'instock', emoji:'🏷️', bg:'#a855f7', title:'Наклейки ТУРБО · 10 шт', desc:'Классическая серия. Яркие, плотные.', price:100, tag:'Хит' },
+  { id:2, status:'preorder', emoji:'💥', bg:'#ff4d8d', title:'Наклейки ТУРБО · 25 шт', desc:'Набор для обмена и коллекции.', price:200, tag:'Новинка' },
+  { id:3, status:'outstock', emoji:'💖', bg:'#8ecae6', title:'Наклейка «Турбо-сердце»', desc:'Винтаж, водонепроницаемая.', price:40 },
+  { id:4, status:'instock', emoji:'⭐', bg:'#b8e0a0', title:'Наклейки ТУРБО «Ретро»', desc:'Серия с логотипами и звёздами.', price:180 },
+  { id:100, status:'rare', emoji:'📎', bg:'#ffd166', title:'Наклейка «Скрепка» · ЛИМИТКА', desc:'Только 100 штук в мире!', price:300, tag:'ЛИМИТКА' },
+  { id:5, status:'instock', emoji:'🌀', bg:'#8ecae6', title:'Бумажный сюрикен', desc:'Модульная сборка, 8 лучей.', price:90, tag:'Хит' },
+  { id:6, status:'instock', emoji:'🗡️', bg:'#ffd166', title:'Бумажный меч «Катана»', desc:'Длина 60 см, плотная бумага.', price:250 },
+  { id:7, status:'preorder', emoji:'🔫', bg:'#ff4d8d', title:'Бумажный пистолет', desc:'Стреляет бумажными пульками.', price:200, old:260 },
+  { id:8, status:'instock', emoji:'🛡️', bg:'#b8e0a0', title:'Бумажный щит', desc:'Круглый щит 35 см, держит удар.', price:320, tag:'Новинка' },
+  { id:9, status:'instock', emoji:'📦', bg:'#ffd166', title:'Бумажные ножны', desc:'Подходят под «Катану» 60 см.', price:150 },
+  { id:10, status:'instock', emoji:'🎯', bg:'#ff4d8d', title:'Набор «Арсенал» 5 в 1', desc:'Всё оружие в одном наборе.', price:690, old:790, tag:'Выгода' }
+];
+
+async function loadData() {
+  try {
+    const snapshot = await db.collection("products").get();
+    if (snapshot.empty) {
+      PRODUCTS = DEFAULT_PRODUCTS;
+    } else {
+      PRODUCTS = [];
+      snapshot.forEach(doc => PRODUCTS.push(doc.data()));
+    }
+  } catch(e) {
+    console.warn("Ошибка Firestore, используем дефолт", e);
+    PRODUCTS = DEFAULT_PRODUCTS;
+  }
+  renderProducts();
+  updateCartUI();
+}
+
+auth.onAuthStateChanged(user => {
+  currentUser = user;
+  updateAuthUI();
+});
+
+function updateAuthUI() {
+  const btn = document.getElementById('authBtn');
+  if (currentUser) {
+    btn.textContent = currentUser.email.split('@')[0];
+    btn.classList.add('logged-in');
+    btn.onclick = () => { auth.signOut(); showToast('Вы вышли'); };
+  } else {
+    btn.textContent = 'Войти';
+    btn.classList.remove('logged-in');
+    btn.onclick = openAuth;
+  }
+}
+
+function openAuth() { document.getElementById('authModal').classList.add('open'); }
+function toggleAuthMode() {
+  isLoginMode = !isLoginMode;
+  document.getElementById('authTitle').textContent = isLoginMode ? 'Вход' : 'Регистрация';
+  document.getElementById('authSubmitBtn').textContent = isLoginMode ? 'Войти' : 'Создать';
+  document.getElementById('authSwitchText').textContent = isLoginMode ? 'Нет аккаунта? Зарегистрироваться' : 'Уже есть? Войти';
+}
+
+function submitAuth() {
+  const email = document.getElementById('authEmail').value.trim();
+  const pass = document.getElementById('authPass').value.trim();
+  if (!email || !pass) return showToast('Заполните поля');
+  
+  const btn = document.getElementById('authSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Загрузка...';
+
+  if (isLoginMode) {
+    auth.signInWithEmailAndPassword(email, pass)
+      .then(() => { closeAll(); showToast('Добро пожаловать!'); })
+      .catch(e => showToast('Ошибка: ' + e.message));
+  } else {
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then(() => { closeAll(); showToast('Аккаунт создан!'); })
+      .catch(e => showToast('Ошибка: ' + e.message));
+  }
+  
+  setTimeout(() => { btn.disabled = false; btn.textContent = isLoginMode ? 'Войти' : 'Создать'; }, 1000);
+}
+
+function navigate(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
+  const link = document.getElementById('nav-' + pageId);
+  if (link) link.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  history.pushState(null, '', '#' + pageId);
+}
+
+window.addEventListener('popstate', () => navigate(window.location.hash.replace('#', '') || 'home'));
+if (window.location.hash) navigate(window.location.hash.replace('#', ''));
+
+const PROMOS = {'БУМАГА10': 0.10, 'ФОРСАЖ15': 0.15, 'ТУРБО20': 0.20, 'SURGUT5': 0.05, 'ПАСХАЛКА': 0.99};
+let appliedPromo = null;
+let cart = JSON.parse(localStorage.getItem('bf_cart') || '[]');
+
+function applyPromo() {
+  const val = document.getElementById('promoInput').value.trim().toUpperCase();
+  if (PROMOS[val]) { appliedPromo = PROMOS[val]; showToast('Промокод применён!'); updateCartUI(); }
+  else { showToast('Неверный промокод'); }
+}
+
+function saveCart() { localStorage.setItem('bf_cart', JSON.stringify(cart)); }
+function getCartSum() { return cart.reduce((s, i) => { const p = PRODUCTS.find(x => x.id === i.id); return s + (p ? p.price * i.qty : 0); }, 0); }
+function getCartDiscount() { return appliedPromo ? Math.round(getCartSum() * appliedPromo) : 0; }
+function getCartTotal() { return getCartSum() - getCartDiscount(); }
+function getCartQty() { return cart.reduce((s, i) => s + i.qty, 0); }
+
+function updateCartUI() {
+  document.getElementById('cartCount').textContent = getCartQty();
+  document.getElementById('cartTotal').textContent = getCartTotal().toLocaleString('ru-RU') + ' ₽';
+  const dr = document.getElementById('discountRow');
+  if (appliedPromo) { dr.style.display = 'flex'; document.getElementById('discountSum').textContent = getCartDiscount().toLocaleString('ru-RU') + ' ₽'; }
+  else dr.style.display = 'none';
+
+  const body = document.getElementById('cartBody');
+  if (cart.length === 0) { body.innerHTML = '<p style="text-align:center; color:#666;">Пусто</p>'; return; }
+  body.innerHTML = cart.map(item => {
+    const p = PRODUCTS.find(x => x.id === item.id);
+    if (!p) return '';
+    return `<div class="cart-item">
+      <div class="cart-item-img" style="background:${p.bg}">${p.emoji}</div>
+      <div class="cart-item-info">
+        <h4>${p.title}</h4><p>${p.price} ₽</p>
+        <div class="cart-qty"><button onclick="changeQty(${p.id}, -1)">−</button><span>${item.qty}</span><button onclick="changeQty(${p.id}, 1)">+</button></div>
+      </div>
+      <div style="font-weight:900;">${(p.price * item.qty).toLocaleString('ru-RU')} ₽</div>
+    </div>`;
+  }).join('');
+}
+
+function addToCart(id) {
+  const p = PRODUCTS.find(x => x.id === id);
+  if (p.status === 'outstock') return showToast('Нет в наличии');
+  const found = cart.find(i => i.id === id);
+  if (found) found.qty++; else cart.push({ id, qty: 1 });
+  saveCart(); updateCartUI(); showToast('Добавлено');
+}
+
+function changeQty(id, delta) {
+  const item = cart.find(i => i.id === id);
+  if (!item) return;
+  item.qty += delta;
+  if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
+  saveCart(); updateCartUI();
+}
+
+function renderProducts() {
+  const grid = document.getElementById('productsGrid');
+  if(!grid) return;
+  grid.innerHTML = PRODUCTS.map(p => {
+    let statusHtml = '';
+    let btnDisabled = '';
+    let btnText = 'В корзину';
+    
+    if (p.status === 'instock') statusHtml = '<div class="status-badge status-instock">В наличии</div>';
+    else if (p.status === 'preorder') statusHtml = '<div class="status-badge status-preorder">Под заказ</div>';
+    else if (p.status === 'outstock') { statusHtml = '<div class="status-badge status-outstock">Нет</div>'; btnDisabled = 'disabled'; btnText = 'Нет'; }
+    else if (p.status === 'rare') statusHtml = '<div class="status-badge status-rare">🔥 РЕДКИЙ</div>';
+
+    return `<div class="card">
+      ${p.tag ? `<div class="card-tag">${p.tag}</div>` : ''}
+      ${statusHtml}
+      <div class="card-img" style="background: ${p.bg || '#333'}">${p.emoji}</div>
+      <div class="card-body">
+        <div class="card-title">${p.title}</div>
+        <div class="card-desc">${p.desc}</div>
+        <div class="card-footer">
+          <div class="price">${p.old ? `<s>${p.old}₽</s>` : ''}${p.price} ₽</div>
+          <button class="add-btn" onclick="addToCart(${p.id})" ${btnDisabled}>${btnText}</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function startCheckout() {
+  if (cart.length === 0) return showToast('Корзина пуста');
+  if (!currentUser) { showToast('Войдите или зарегистрируйтесь'); openAuth(); return; }
+  document.getElementById('orderEmail').value = currentUser.email;
+  document.getElementById('orderModal').classList.add('open');
+}
+
+function confirmOrder() {
+  const btn = document.querySelector('#orderModal button');
+  btn.textContent = 'Отправка...';
+  btn.disabled = true;
+
+  const orderId = 'BUM-' + Math.floor(Math.random() * 90000 + 10000);
+  const orderData = {
+    id: orderId,
+    email: currentUser.email,
+    items: [...cart],
+    total: getCartTotal(),
+    status: 'placed',
+    date: new Date().toLocaleString()
+  };
+
+  db.collection("orders").doc(orderId).set(orderData).then(() => {
+    localStorage.setItem('bf_my_order', orderId);
+    cart = []; saveCart(); updateCartUI(); closeAll();
+    showToast('Заказ ' + orderId + ' оформлен!');
+    document.getElementById('trackOrderId').value = orderId;
+    navigate('delivery');
+    trackOrder();
+  }).catch(e => {
+    showToast('Ошибка оформления: ' + e.message);
+    btn.textContent = 'Подтвердить заказ';
+    btn.disabled = false;
+  });
+}
+
+let trackerUnsubscribe = null;
+
+function trackOrder() {
+  const orderId = document.getElementById('trackOrderId').value.trim().toUpperCase();
+  if (!orderId) return;
+
+  if (trackerUnsubscribe) trackerUnsubscribe();
+
+  const box = document.getElementById('trackerBox');
+  const noMsg = document.getElementById('noOrderMessage');
+
+  trackerUnsubscribe = db.collection("orders").doc(orderId).onSnapshot((doc) => {
+    if (doc.exists) {
+      const order = doc.data();
+      box.style.display = 'block'; noMsg.style.display = 'none';
+      document.getElementById('orderIdDisplay').textContent = order.id || orderId;
+      
+      const statuses = ['placed', 'processing', 'sorting', 'shipping', 'arrived'];
+      const currentIdx = statuses.indexOf(order.status);
+
+      document.querySelectorAll('.step').forEach((el, idx) => {
+        el.classList.remove('active', 'done');
+        if (idx < currentIdx) el.classList.add('done');
+        if (idx === currentIdx) el.classList.add('active');
+      });
+      
+      const qrBox = document.getElementById('qrBox');
+      if (order.status === 'arrived') {
+        qrBox.style.display = 'block';
+        document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${order.id || orderId}`;
+      } else {
+        qrBox.style.display = 'none';
+      }
+    } else {
+      box.style.display = 'none'; noMsg.style.display = 'block';
+      noMsg.innerHTML = '<span style="color:var(--red)">Заказ не найден.</span>';
+    }
+  });
+}
+
+function closeAll() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('orderModal').classList.remove('open');
+  document.getElementById('authModal').classList.remove('open');
+  document.getElementById('eggModal').classList.remove('open');
+}
+
+document.getElementById('openCart').addEventListener('click', () => {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('overlay').classList.add('show');
+});
+
+let toastTimer;
+function showToast(text) {
+  const t = document.getElementById('toast');
+  t.textContent = text;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+const myOrderId = localStorage.getItem('bf_my_order');
+if (myOrderId) {
+  document.getElementById('trackOrderId').value = myOrderId;
+  trackOrder();
+}
+
+// ПАСХАЛКИ (Упрощенные, чтобы не перегружать код)
+const EASTER_EGGS = ["Набрать «бумага»","Набрать «турбо»","Набрать «сургут»","Набрать «форсаж»","Набрать «секрет»","Набрать «конфетти»","Набрать «пасхалка»","Набрать «скрепка»","Набрать «дракон»","Набрать «меч»","Набрать «щит»","Набрать «сюрикен»","Набрать «пистолет»","Набрать «ножны»","Набрать «арсенал»","Набрать «ретро»","Набрать «сердце»","Набрать «звезда»","Набрать «молния»","Набрать «1000»","Ввести промокод ПАСХАЛКА","Ввести промокод БУМАЖНОСТЬ","Ввести промокод ДРАКОН","Ввести промокод СЕКРЕТ","Ввести промокод СУРГУТ","Ввести промокод СКРЕПКА","Ввести промокод ТУРБО","Ввести промокод ФОРСАЖ","Ввести промокод БУМАГА","Ввести промокод 100","Konami-код","Клик по логотипу 5 раз","Клик по корзине 5 раз","Клик по копирайту 5 раз","Двойной клик по заголовку H1","Клик по бегущей строке","Наведение на карточку 2 сек","Правый клик по пустой корзине","Клик по герою 5 раз","Клик по почте 3 раза","Клик по шагу 01","Клик по шагу 02","Клик по шагу 03","Клик по скрепке в логотипе","Клик по каталогу","Клик по кнопке Как это работает","Пустой промокод","Неверный промокод","Очистка промокода","Добавить 100 скрепок","Добавить 13 товаров","Сумма > 10 000","Очистить корзину","Клик по итоговой сумме","Заказ в пятницу","Заказ ночью","Заказ утром","Пустой email","Неверный email","Успешный заказ","Ctrl+B","Alt+T","Shift+S","Набрать «админ»","Набрать «123»","Набрать «qwerty»","Набрать «тысяча»","Свайп влево","Свайп вправо","Скролл вниз","Скролл вверх","Смена вкладки","Изменение окна","Выделить текст","Двойной клик по картинке","Клик по FAQ","Клик по контактам","Найти СЕКРЕТНО","Найти в консоли","Ввод «бумага» 5 раз","Ввод «турбо» 5 раз","Ввод «сургут» 5 раз","Клик по подвалу 📎","Клик по пустому месту 10 раз","Ввод «форсаж» 5 раз","Ввод «секрет» 5 раз","Ввод «конфетти» 5 раз","Ввод «пасхалка» 5 раз","Ввод «скрепка» 5 раз","Ввод «дракон» 5 раз","Ввод «меч» 5 раз","Ввод «щит» 5 раз","Ввод «сюрикен» 5 раз","Ввод «пистолет» 5 раз","Ввод «ножны» 5 раз","Ввод «арсенал» 5 раз","Ввод «ретро» 5 раз","Ввод «сердце» 5 раз"];
+let foundEggs = new Set(JSON.parse(localStorage.getItem('bf_eggs') || '[]'));
+
+function unlockEgg(idx) {
+  if (idx >= 0 && idx < 100 && !foundEggs.has(idx)) {
+    foundEggs.add(idx);
+    localStorage.setItem('bf_eggs', JSON.stringify([...foundEggs]));
+    if (foundEggs.size % 10 === 0 || foundEggs.size === 1) showToast(`🥚 Найдено пасхалок: ${foundEggs.size}/100!`);
+  }
+}
+
+function spawnEmoji(emoji, count) {
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.textContent = emoji;
+    el.style.cssText = `position:fixed;left:${Math.random()*100}%;top:-60px;font-size:${18+Math.random()*30}px;z-index:9999;pointer-events:none;animation:paperFall ${2+Math.random()*3}s linear ${Math.random()*1.2}s forwards;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 6000);
+  }
+}
+function spawnConfetti(count) {
+  const colors = ['#a855f7','#ff4d8d','#8ecae6','#b8e0a0','#ffd166'];
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.style.cssText = `position:fixed;left:${Math.random()*100}%;top:-20px;width:10px;height:10px;border-radius:2px;background:${colors[Math.floor(Math.random()*colors.length)]};z-index:9999;pointer-events:none;animation:confettiFall ${1.5+Math.random()*2.5}s ease-in ${Math.random()*0.8}s forwards;`;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+}
+function flyPlane() {
+  const el = document.createElement('div');
+  el.textContent = '✈️';
+  el.style.cssText = `position:fixed;top:${20+Math.random()*60}%;left:-80px;font-size:50px;z-index:9999;pointer-events:none;animation:planeFly ${2+Math.random()*1.5}s linear forwards;`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4000);
+}
+function shakeScreen() {
+  document.body.classList.add('shake');
+  setTimeout(() => document.body.classList.remove('shake'), 500);
+}
+
+let buf = '';
+const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+let kIdx = 0;
+
+document.addEventListener('keydown', e => {
+  if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  const k = e.key;
+  
+  if (k === konami[kIdx] || (k.toLowerCase() === konami[kIdx])) {
+    kIdx++;
+    if (kIdx === konami.length) {
+      kIdx = 0; spawnConfetti(100); flyPlane(); showToast('🎮 KONAMI CODE!'); unlockEgg(30);
+    }
+  } else { kIdx = (k === konami[0]) ? 1 : 0; }
+
+  if (k.length === 1) {
+    buf = (buf + k.toLowerCase()).slice(-30);
+    const words = {
+      'бумага': () => { spawnEmoji('📄', 40); unlockEgg(0); },
+      'турбо': () => { document.body.style.background = '#7e22ce'; setTimeout(()=>document.body.style.background = '#0f0f0f', 800); unlockEgg(1); },
+      'сургут': () => { spawnConfetti(30); unlockEgg(2); },
+      'форсаж': () => { flyPlane(); unlockEgg(3); },
+      'конфетти': () => { spawnConfetti(100); unlockEgg(5); },
+      'скрепка': () => { spawnEmoji('📎', 50); unlockEgg(7); },
+    };
+    Object.keys(words).forEach(w => { if (buf.endsWith(w)) { words[w](); buf = ''; } });
+  }
+});
+
+document.querySelector('.logo').addEventListener('click', () => unlockEgg(31));
+document.getElementById('cartCount').addEventListener('click', (e) => { e.stopPropagation(); unlockEgg(32); });
+document.getElementById('eggHint').addEventListener('click', () => {
+  const modal = document.getElementById('eggModal');
+  document.getElementById('eggsFound').textContent = foundEggs.size + ' / 100';
+  document.getElementById('eggList').innerHTML = EASTER_EGGS.map((egg, i) => {
+    const found = foundEggs.has(i);
+    return `<div class="egg-item ${found ? 'found' : ''}"><span>${i+1}.</span> ${egg} ${found ? '✅' : '🔒'}</div>`;
+  }).join('');
+  modal.classList.add('open');
+  unlockEgg(33);
+});
+
+document.querySelector('h1').addEventListener('dblclick', () => { shakeScreen(); unlockEgg(34); });
+
+loadData();
+</script>
 </body>
 </html>
