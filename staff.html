@@ -89,8 +89,19 @@
 </div>
 
 <div id="tab-orders" class="tab-content active">
+  <!-- НОВЫЙ БЛОК ДЛЯ КУРЬЕРА (ПОИСК ПО QR) -->
+  <div class="card" style="border-color: var(--purple); background: rgba(168, 85, 247, 0.05);">
+    <h2>🔍 Поиск заказа (Сканер QR)</h2>
+    <p style="font-size: 13px; color: #aaa; margin-bottom: 15px;">Отсканируйте QR-код клиента камерой телефона, скопируйте текст (например, BUM-12345) и вставьте сюда.</p>
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+      <input type="text" id="searchOrderInput" placeholder="BUM-XXXXX" style="flex: 1; padding: 12px; background: var(--bg); border: 1px solid var(--purple); color: #fff; border-radius: 8px; font-size: 16px; font-weight: bold;">
+      <button class="btn btn-main" onclick="searchOrder()" style="padding: 12px 24px;">Найти</button>
+    </div>
+    <div id="searchResult"></div>
+  </div>
+
   <div class="card">
-    <h2>Новые заказы (Real-time)</h2>
+    <h2>Все заказы (Real-time)</h2>
     <div class="hint-box">
       Здесь отображаются все заказы клиентов с любых устройств. Смена статуса мгновенно обновится у клиента.
     </div>
@@ -152,9 +163,56 @@ function switchTab(tabId, btn) {
   if(btn) btn.classList.add('active');
 }
 
+// --- ПОИСК ЗАКАЗА ПО QR ---
+function searchOrder() {
+  const orderId = document.getElementById('searchOrderInput').value.trim().toUpperCase();
+  const resultDiv = document.getElementById('searchResult');
+  if (!orderId) { resultDiv.innerHTML = ''; return; }
+
+  resultDiv.innerHTML = '<p style="color: #888;">Поиск...</p>';
+
+  db.collection("orders").doc(orderId).get().then((doc) => {
+    if (doc.exists) {
+      const order = doc.data();
+      const statusRu = { 'placed': 'Оформлен', 'processing': 'Делается', 'sorting': 'Сортировка', 'shipping': 'В пути', 'arrived': 'Прибыл' };
+      
+      resultDiv.innerHTML = `
+        <div class="order-card" style="border-color: var(--green);">
+          <div class="order-header">
+            <div>
+              <div style="font-weight: 900; font-size: 18px; color: var(--green);">Найден: ${order.id}</div>
+              <div style="color: #888; font-size: 13px;">Клиент: ${order.email}</div>
+              <div style="color: #888; font-size: 13px;">Сумма: ${order.total} ₽</div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 12px; color: #888; margin-bottom: 4px;">Статус</div>
+              <div class="order-status">${statusRu[order.status]}</div>
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 15px; background: #222; padding: 15px; border-radius: 8px;">
+            <span style="font-weight: 700;">Выдать заказ (изменить статус):</span>
+            <select class="order-status-select" onchange="changeOrderStatus('${order.id}', this.value)">
+              <option value="placed" ${order.status==='placed'?'selected':''}>Оформлен</option>
+              <option value="processing" ${order.status==='processing'?'selected':''}>Делается</option>
+              <option value="sorting" ${order.status==='sorting'?'selected':''}>Сортировка</option>
+              <option value="shipping" ${order.status==='shipping'?'selected':''}>В пути</option>
+              <option value="arrived" ${order.status==='arrived'?'selected':''}>Прибыл (Выдан)</option>
+            </select>
+          </div>
+        </div>
+      `;
+    } else {
+      resultDiv.innerHTML = '<p style="color: var(--red); font-weight: bold;">Заказ с таким номером не найден.</p>';
+    }
+  }).catch(e => {
+    resultDiv.innerHTML = `<p style="color: var(--red);">Ошибка: ${e.message}</p>`;
+  });
+}
+
+// --- ВСЕ ЗАКАЗЫ ---
 function listenOrders() {
+  const container = document.getElementById('ordersContainer');
   db.collection("orders").orderBy("date", "desc").onSnapshot((snapshot) => {
-    const container = document.getElementById('ordersContainer');
     if (snapshot.empty) {
       container.innerHTML = '<p style="color: #888;">Заказов пока нет.</p>';
       return;
@@ -199,22 +257,38 @@ function listenOrders() {
       `;
       container.appendChild(card);
     });
+  }, (error) => {
+    container.innerHTML = `<p style="color: var(--red); padding: 20px; border: 1px dashed var(--red); border-radius: 8px;">
+      <b>Ошибка загрузки заказов!</b><br>Причина: ${error.message}<br>
+      <span style="font-size: 12px; color: #aaa;">Скорее всего, в Firebase не настроены правила Firestore (Rules).</span>
+    </p>`;
   });
 }
 
 function changeOrderStatus(orderId, newStatus) {
   db.collection("orders").doc(orderId).update({ status: newStatus })
     .then(() => alert('Статус обновлен! Клиент увидит изменения.'))
-    .catch(e => console.error(e));
+    .catch(e => alert('Ошибка обновления: ' + e.message));
 }
 
+// --- ТОВАРЫ ---
 let inventory = { products: [] };
 
 async function loadProducts() {
-  const snapshot = await db.collection("products").get();
-  inventory.products = [];
-  snapshot.forEach(doc => inventory.products.push(doc.data()));
-  renderProducts();
+  const list = document.getElementById('productList');
+  list.innerHTML = '<p style="color:#888;">Загрузка...</p>';
+  
+  try {
+    const snapshot = await db.collection("products").get();
+    inventory.products = [];
+    snapshot.forEach(doc => inventory.products.push(doc.data()));
+    renderProducts();
+  } catch(e) {
+    list.innerHTML = `<p style="color: var(--red); padding: 20px; border: 1px dashed var(--red); border-radius: 8px;">
+      <b>Ошибка загрузки товаров!</b><br>Причина: ${e.message}<br>
+      <span style="font-size: 12px; color: #aaa;">Проверьте правила Firestore (Rules).</span>
+    </p>`;
+  }
 }
 
 function renderProducts() {
@@ -265,6 +339,10 @@ function addProduct() {
 
 async function seedDefaultProducts() {
   if(!confirm('Загрузить стандартные товары? Старые не удалятся.')) return;
+  const btn = event.target;
+  btn.textContent = 'Загрузка...';
+  btn.disabled = true;
+
   const def = [
     { id:1, status:'instock', emoji:'🏷️', bg:'#a855f7', title:'Наклейки ТУРБО · 10 шт', desc:'Классическая серия.', price:100, tag:'Хит' },
     { id:2, status:'preorder', emoji:'💥', bg:'#ff4d8d', title:'Наклейки ТУРБО · 25 шт', desc:'Набор для обмена.', price:200, tag:'Новинка' },
@@ -278,12 +356,21 @@ async function seedDefaultProducts() {
     { id:9, status:'instock', emoji:'📦', bg:'#ffd166', title:'Бумажные ножны', desc:'Подходят под «Катану» 60 см.', price:150 },
     { id:10, status:'instock', emoji:'🎯', bg:'#ff4d8d', title:'Набор «Арсенал» 5 в 1', desc:'Всё оружие в одном наборе.', price:690, old:790, tag:'Выгода' }
   ];
-  for(let p of def) {
-    await db.collection("products").doc(String(p.id)).set(p);
+  
+  try {
+    for(let p of def) {
+      await db.collection("products").doc(String(p.id)).set(p);
+    }
+    loadProducts();
+  } catch(e) {
+    alert('Ошибка: ' + e.message);
+  } finally {
+    btn.textContent = 'Загрузить стандартные товары';
+    btn.disabled = false;
   }
-  loadProducts();
 }
 
+// --- ПЕЧАТЬ ---
 const DESIGNS = [
   { id:'turbo', emoji:'⭐', label:'ТУРБО', color:'#ffd166', dark:true },
   { id:'forsazh', emoji:'🗡️', label:'ФОРСАЖ', color:'#e63946' },
