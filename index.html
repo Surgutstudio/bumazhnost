@@ -187,8 +187,13 @@
   <section id="page-delivery" class="page wrap">
     <div class="static-page">
       <h2>Доставка и трекер</h2>
-      <p style="color: var(--text-muted); margin-bottom: 20px;">Введите номер заказа, чтобы отследить его.</p>
+      <p style="color: var(--text-muted); margin-bottom: 10px;">Введите номер заказа, чтобы отследить его.</p>
       
+      <!-- ПАМЯТКА О СОХРАНЕНИИ -->
+      <div id="savedOrderNote" style="display: none; background: rgba(168,85,247,0.1); border: 1px solid var(--purple); color: var(--purple); padding: 10px 15px; border-radius: 8px; font-size: 13px; margin-bottom: 20px;">
+        💾 Ваш последний заказ сохранен в этом браузере. Статус загружается автоматически.
+      </div>
+
       <div style="display: flex; gap: 10px; margin-bottom: 20px;">
         <input type="text" id="trackOrderId" placeholder="Номер (BUM-XXXXX)" style="flex:1; padding: 12px; background: var(--surface); border: 1px solid var(--border); color: #fff; border-radius: 8px;">
         <button onclick="trackOrder()" class="btn-main" style="padding: 12px 24px;">Отследить</button>
@@ -272,13 +277,11 @@
 
 <div class="toast" id="toast">Готово</div>
 
-<!-- FIREBASE SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
-// ТВОЙ КОНФИГ FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyAXTFwBiq682yjwse0Her1tyScFDm9Ntzg",
   authDomain: "bumazhnost.firebaseapp.com",
@@ -482,7 +485,6 @@ function startCheckout() {
   document.getElementById('orderModal').classList.add('open');
 }
 
-// МГНОВЕННОЕ ОФОРМЛЕНИЕ ЗАКАЗА
 function confirmOrder() {
   const btn = document.querySelector('#orderModal button');
   btn.textContent = 'Отправка...';
@@ -498,16 +500,19 @@ function confirmOrder() {
     date: new Date().toLocaleString()
   };
 
-  // 1. МГНОВЕННО очищаем корзину и закрываем окна
+  // 1. СОХРАНЯЕМ НОМЕР ЗАКАЗА В БРАУЗЕРЕ
+  localStorage.setItem('bf_my_order', orderId);
+
+  // 2. МГНОВЕННО очищаем корзину и закрываем окна
   cart = []; saveCart(); updateCartUI(); closeAll();
   showToast('Заказ ' + orderId + ' оформлен!');
   
-  // 2. Мгновенно перекидываем на трекер
+  // 3. Перекидываем на трекер
   document.getElementById('trackOrderId').value = orderId;
   navigate('delivery');
   trackOrder();
 
-  // 3. Отправляем в Firebase в фоне
+  // 4. Отправляем в Firebase в фоне
   db.collection("orders").doc(orderId).set(orderData).catch(e => {
     console.warn("Ошибка отправки в Firebase:", e);
   }).finally(() => {
@@ -578,10 +583,13 @@ function showToast(text) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
 }
 
+// АВТОЗАГРУЗКА СОХРАНЕННОГО ЗАКАЗА
 const myOrderId = localStorage.getItem('bf_my_order');
 if (myOrderId) {
+  document.getElementById('savedOrderNote').style.display = 'block';
   document.getElementById('trackOrderId').value = myOrderId;
-  trackOrder();
+  // Небольшая задержка, чтобы DOM успел загрузиться
+  setTimeout(() => trackOrder(), 500);
 }
 
 // ПАСХАЛКИ
